@@ -109,7 +109,7 @@ DATABASES = {
 }
 
 """
-Postgres example
+Postgres example - (install psycopg2)
 """
 # [USER, PASS, NAME, HOST, PORT]
 # DATABASE_SETTINGS = json.loads(get_env_variable('TCDJANGO_DB_SETTINGS'))

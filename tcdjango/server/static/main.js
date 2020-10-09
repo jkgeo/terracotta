@@ -354,7 +354,6 @@ function initUI(remote_host, collections, tags) {
     noUiSlider.create(singlebandSlider, sliderDummyOptions).on(
         'change.one',
         function (values, handle) {
-            console.log(values, handle);
             STATE.current_singleband_stretch[handle] = parseFloat(values[handle]);
         }
     );
@@ -510,7 +509,6 @@ function updateSearchResults(remote_host = STATE.remote_host, collections = STAT
         }
     }
     
-    console.log(query_params)
     // Request datasets
     const datasetURL = assembleDatasetURL(remote_host, query_params, DATASETS_PER_PAGE, STATE.current_dataset_page);
     return httpGet(datasetURL).then((res) => {
@@ -811,7 +809,6 @@ function calcScreenCovered(dsBounds, screenBounds){
  * Updates page controls & search results when search changes.
  */
 function searchFieldChanged() {
-    console.log('here')
     STATE.current_dataset_page = 0;
     updatePageControls();
     updateSearchResults();
@@ -882,7 +879,6 @@ function populateRgbPickers(remote_host, rgbDatasets) {
 
     resetRgbSelectors(true);
     rgbSelectorChanged();
-    console.log(rgbDatasets)
     const rgbSelectors = [
         document.querySelector('.rgb-selector#R'),
         document.querySelector('.rgb-selector#G'),
@@ -890,7 +886,6 @@ function populateRgbPickers(remote_host, rgbDatasets) {
     ];
 
     const rgbDataPromises = rgbDatasets.map((ds) => {
-        console.log(ds)
         for (let j = 0; j < rgbSelectors.length; j++) {
 
             let option = document.createElement('option');
