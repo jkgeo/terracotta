@@ -12,7 +12,7 @@ from server.utils.raster_base import RasterDriver
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from config.settings import DEFAULT_TILE_SIZE
+from django.conf import settings
 
 from typing import Mapping, Union, Tuple, TypeVar
 from typing.io import BinaryIO
@@ -123,7 +123,7 @@ class Singleband(viewsets.ViewSet):
         tile_size = data.get('tile_size', None)
         
         if tile_size is None:
-            tile_size = DEFAULT_TILE_SIZE
+            tile_size = settings.DEFAULT_TILE_SIZE
                 
         tile_size = (tile_size, tile_size)
 
@@ -169,7 +169,7 @@ class Singleband(viewsets.ViewSet):
         tile_size = data.get('tile_size', None)
 
         if tile_size is None:
-            tile_size = DEFAULT_TILE_SIZE
+            tile_size = settings.DEFAULT_TILE_SIZE
             
         tile_size = (tile_size, tile_size)
 

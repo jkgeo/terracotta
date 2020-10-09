@@ -13,7 +13,7 @@ from PIL import Image
 
 from server.utils.profile import trace
 from server.utils import exceptions
-from config.settings import PNG_COMPRESS_LEVEL
+from django.conf import settings
 
 Number = TypeVar('Number', int, float)
 RGBA = Tuple[Number, Number, Number, Number]
@@ -29,7 +29,7 @@ def array_to_png(img_data: Array,
 
     transparency: Union[Tuple[int, int, int], int, bytes]
 
-    compress_level = PNG_COMPRESS_LEVEL
+    compress_level = settings.PNG_COMPRESS_LEVEL
 
     if img_data.ndim == 3:  # encode RGB image
         if img_data.shape[-1] != 3:

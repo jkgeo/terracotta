@@ -1,5 +1,5 @@
 from storages.backends.s3boto3 import S3Boto3Storage
-from config.settings import USE_S3_RASTERS
+from django.conf import settings
 
 class MediaStorage(S3Boto3Storage):
     location = 'media'
@@ -18,7 +18,7 @@ class ImageryStorage(S3Boto3Storage):
     ### AWS Lambda provides AWS_SESSION_TOKEN and AWS_SECURITY_TOKEN as environment variables, 
     ### taken from the execution role for Lambda which may not be the same credentials required by django-storages for S3 access"
     ### Overriding _get_security_token to prevent duplicate security tokens
-    if USE_S3_RASTERS:
+    if settings.USE_S3_RASTERS:
         def _get_security_token(self):
             return None
 

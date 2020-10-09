@@ -2,7 +2,7 @@ from typing import (Callable, Any, Union, Mapping, Sequence, Dict, List, Tuple,
                     TypeVar, Optional, cast, TYPE_CHECKING)
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, Executor, ProcessPoolExecutor, ThreadPoolExecutor
-from config.settings import USE_S3_RASTERS, DEFAULT_TILE_SIZE, REPROJECTION_METHOD, RESAMPLING_METHOD, RASTER_CACHE_SIZE, RASTER_CACHE_COMPRESS_LEVEL
+from django.conf import settings
 from server.utils.profile import trace
 from server.utils import exceptions
 
@@ -51,8 +51,8 @@ class RasterDriver():
     @abstractmethod
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._raster_cache = CompressedLFUCache(
-            RASTER_CACHE_SIZE,
-            compression_level=RASTER_CACHE_COMPRESS_LEVEL
+            settings.RASTER_CACHE_SIZE,
+            compression_level=settings.RASTER_CACHE_COMPRESS_LEVEL
         )
         self._cache_lock = threading.RLock()
         super().__init__(*args, **kwargs)
@@ -438,13 +438,13 @@ class RasterDriver():
         future: Future[np.ma.MaskedArray]
         result: np.ma.MaskedArray
 
-        if not USE_S3_RASTERS:
+        if not settings.USE_S3_RASTERS:
             path = dataset.filepath.path
-        if USE_S3_RASTERS:
+        if settings.USE_S3_RASTERS:
             path = dataset.filepath.url
 
         if tile_size is None:
-            tile_size = DEFAULT_TILE_SIZE
+            tile_size = settings.DEFAULT_TILE_SIZE
 
         # make sure all arguments are hashable
         kwargs = dict(
@@ -452,8 +452,8 @@ class RasterDriver():
             tile_bounds=tuple(tile_bounds) if tile_bounds else None,
             tile_size=tuple(tile_size),
             preserve_values=preserve_values,
-            reprojection_method=REPROJECTION_METHOD,
-            resampling_method=RESAMPLING_METHOD
+            reprojection_method=settings.REPROJECTION_METHOD,
+            resampling_method=settings.RESAMPLING_METHOD
         )
 
         cache_key = cachetools.keys.hashkey(**kwargs)

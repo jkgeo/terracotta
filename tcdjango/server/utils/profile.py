@@ -8,7 +8,7 @@ from typing import Iterator
 import traceback
 import contextlib
 
-from config import settings
+from django.conf import settings
 
 
 @contextlib.contextmanager

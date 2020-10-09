@@ -2,8 +2,9 @@ import os
 from django.db import models, transaction
 from django.core.files.storage import default_storage, FileSystemStorage
 from django.utils.text import slugify
+from django.conf import settings
+
 from config.storage_backends import ImageryStorage
-from config.settings import USE_S3_RASTERS
 from jsonfield import JSONField
 from .utils.raster_base import RasterDriver
 
@@ -11,9 +12,9 @@ from typing import (Tuple, Dict, Iterator, Sequence, Union,
                     Mapping, Any, Optional, cast, TypeVar, NamedTuple)
 
 
-if not USE_S3_RASTERS:
+if not settings.USE_S3_RASTERS:
     fs = FileSystemStorage(location='media')
-elif USE_S3_RASTERS:
+elif settings.USE_S3_RASTERS:
     fs = ImageryStorage()
 
 
