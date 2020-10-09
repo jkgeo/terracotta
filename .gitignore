@@ -70,6 +70,11 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
+migrations/
+staticfiles/
+*.db
+*.sqlite
+*.sqlite3
 
 # Flask stuff:
 instance/
@@ -123,3 +128,9 @@ ENV/
 
 # VS Code
 .vscode/
+
+
+media/
+db.sqlite3
+test_files/
+private_settings.py

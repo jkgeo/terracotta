@@ -1,41 +1,13 @@
-[![Build Status](https://travis-ci.com/DHI-GRAS/terracotta.svg?token=27HwdYKjJ1yP6smyEa25&branch=master)](https://travis-ci.org/DHI-GRAS/terracotta)
-[![Documentation Status](https://readthedocs.org/projects/terracotta-python/badge/?version=latest)](https://terracotta-python.readthedocs.io/en/latest/?badge=latest)
-[![codecov](https://codecov.io/gh/DHI-GRAS/terracotta/branch/master/graph/badge.svg?token=u16QBwwvvn)](https://codecov.io/gh/DHI-GRAS/terracotta)
-[![GitHub release](https://img.shields.io/github/release-pre/dhi-gras/terracotta.svg)](https://github.com/DHI-GRAS/terracotta/releases)
-[![PyPI release](https://img.shields.io/pypi/v/terracotta.svg)](https://pypi.org/project/terracotta)
-[![License](https://img.shields.io/github/license/dhi-gras/terracotta.svg)](https://github.com/DHI-GRAS/terracotta/blob/master/LICENSE)
-[![Python versions](https://img.shields.io/pypi/pyversions/terracotta.svg)](https://pypi.org/project/terracotta)
+# A Django implementation of [Terracotta](https://github.com/DHI-GRAS/terracotta)
 
-[![Logo](docs/_figures/logo-banner.svg)](#)
+### Why Django?
 
-Terracotta is a pure Python tile server that runs as a WSGI app on a
-dedicated webserver or as a serverless app on AWS Lambda. It is built on a
-modern Python 3.6 stack, powered by awesome open-source software such as
-[Flask](http://flask.pocoo.org), [Zappa](https://github.com/Miserlou/Zappa),
-and [Rasterio](https://github.com/mapbox/rasterio).
-
-[Try the demo](https://terracotta-python.readthedocs.io/en/latest/preview-app.html) |
-[Read the docs](https://terracotta-python.readthedocs.io/en/latest) |
-[Explore the API](https://2truhxo59g.execute-api.eu-central-1.amazonaws.com/production/apidoc) |
-[Satlas, powered by Terracotta](http://satlas.dk)
-
-## Why Terracotta?
-
-- It is trivial to get going. Got a folder full of
-  [cloud-optimized GeoTiffs](https://www.cogeo.org/) in different
-  projections you want to have a look at in your browser?
-  `terracotta serve -r {name}.tif` and
-  `terracotta connect localhost:5000` get you there.
-- We make minimal assumptions about your data, so *you stay in charge*.
-  Keep using the tools you know and love to create and organize your
-  data, Terracotta serves it exactly as it is.
-- Serverless deployment is a first-priority use case, so you don’t have
-  to worry about maintaining or scaling your architecture.
-- Terracotta instances are self-documenting. Everything the frontend
-  needs to know about your data is accessible from only a handful of
-  API endpoints.
+- To take advantage of Django's Databse support and ORM
+  - Supported databases include PostgreSQL, MariaDB, MySQL, Oracle, & SQLite 
+- Django Rest Framework - a powerful and flexible toolkit for building Web APIs.
 
 ## The Terracotta workflow
+#### Remains the same, but scripts are now Django management commands.
 
 ### 1. Optimize raster files
 
@@ -49,28 +21,30 @@ total 1.4G
 -rw-r--r-- 1 dimh 1049089 231M Aug 29 16:57 S2A_20170831_171901_25XEL_B03.tif
 -rw-r--r-- 1 dimh 1049089 231M Aug 29 16:57 S2A_20170831_171901_25XEL_B04.tif
 
-$ terracotta optimize-rasters *.tif -o optimized/
+$ python manage.py optimize_rasters *.tif -o optimized/
 
 Optimizing rasters: 100%|██████████████████████████| [05:16<00:00, file=S2A_20170831_...25XEL_B04.tif]
 ```
 
-### 2. Create a database from file name pattern
+### 2. Use whichever database you like (change in /config/settings.py)
 
 ```bash
-$ terracotta ingest optimized/S2A_{date}_{}_{tile}_{band}.tif -o greenland.sqlite
+$ python manage.py ingest optimized/*.tif 
 Ingesting raster files: 100%|███████████████████████████████████████████| 6/6 [00:49<00:00,  8.54s/it]
 ```
 
-### 3. Serve it up
+### 3. Serve it up with Django's built-in server
 
 ```bash
-$ terracotta serve -d greenland.sqlite
- * Serving Flask app "terracotta.server" (lazy loading)
- * Environment: production
-   WARNING: Do not use the development server in a production environment.
-   Use a production WSGI server instead.
- * Debug mode: off
- * Running on http://localhost:5000/ (Press CTRL+C to quit)
+$ python manage.py runserver
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 05, 2020 - 23:40:39
+Django version 2.2.15, using settings 'config.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
 ```
 
 ### 4. Explore the running server
@@ -79,46 +53,36 @@ $ terracotta serve -d greenland.sqlite
 
 You can use any HTTP-capable client, such as `curl`.
 ```bash
-$ curl localhost:5000/datasets?tile=25XEL
-{"page":0,"limit":100,"datasets":[{"date":"20170831","tile":"25XEL","band":"B02"},{"date":"20170831","tile":"25XEL","band":"B03"},{"date":"20170831","tile":"25XEL","band":"B04"}]}
+$ curl localhost:5000/datasets/
+[
+  {
+    "url": "http://localhost:8000/datasets/1/",
+    "collection": "http://localhost:8000/collections/1/",
+    "name": "S2A_20160724_135032_27XVB_B02.tif",
+    "metadata": null,
+    "stats": "http://localhost:8000/metadata/1/",
+    "filepath": "https://localhost:8000/imagery/default-collection/S2A_20160724_135032_27XVB_B02.tif"
+  },
+]
 ```
 
 Modern browsers (e.g. Chrome or Firefox) will render the JSON as a tree.
 
 #### Interactively
 
-Terracotta also includes a web client. You can start the client (assuming the server is running at http://localhost:5000) using
-```bash
-$ terracotta connect localhost:5000
- * Serving Flask app "terracotta.client" (lazy loading)
- * Environment: production
-   WARNING: Do not use the development server in a production environment.
-   Use a production WSGI server instead.
- * Debug mode: off
- * Running on http://127.0.0.1:5100/ (Press CTRL+C to quit)
-```
+With django-rest-framework and drf-yasg, this Django project provies:
 
-Then open the client page (http://127.0.0.1:5100/ in this case) in your browser.
+- A browsable API at the project root
+http://localhost/8000
 
-![preview](docs/_figures/workflow-preview.png)
+and interactive api documenation with
 
-## Development
+- Swagger UI
+http://localhost:8000/swagger
 
-We gladly accept [bug reports](https://github.com/DHI-GRAS/terracotta/issues)
-and [pull requests](https://github.com/DHI-GRAS/terracotta/pulls) via GitHub.
-For your code to be useful, make sure that it is covered by tests and that
-it satisfies our linting practices (via `mypy` and `flake8`).
+or
 
-To run the tests, just install the necessary dependencies via
+- Redoc 
+http://localhost:8000/redoc
 
-```bash
-$ pip install -e .[test]
-```
 
-Then, you can run
-
-```bash
-$ pytest
-```
-
-from the root of the repository.
