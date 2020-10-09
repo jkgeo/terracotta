@@ -1,0 +1,16 @@
+numpy==1.19.1
+rasterio==1.1.5
+Shapely==1.7.1
+crick==0.0.3
+cachetools==4.1.1
+django_filter==2.3.0
+matplotlib==3.3.2
+drf_yasg==1.17.1
+affine==2.3.0
+mercantile==1.1.6
+Django==2.2.15
+tqdm==4.50.0
+aws_xray_sdk==2.6.0
+django_jsonfield==1.4.0
+django_storages==1.10.1
+Pillow==7.2.0
